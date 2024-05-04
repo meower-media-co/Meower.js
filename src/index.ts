@@ -237,7 +237,7 @@ export default class Client extends EventEmitter {
     * Post to home, or a group chat, if specified
     */
     async post(content: string, id: string | null = null) {
-        const resp = await this.api.posts.send(id ? id : "home", content)
+        const resp = await this.api.posts.send(id ?? "home", content)
         if (resp.status !== 200)
             return null;
 
