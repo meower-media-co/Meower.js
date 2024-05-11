@@ -1,5 +1,5 @@
 import Client from "../..";
-import { Post } from "../../api/posts";
+import { Post } from "../../typeWrappers";
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 export interface Context extends Object {
@@ -47,15 +47,15 @@ export default class Bot extends Client {
             args: args
         })
 
-        this.onPost(async (username: string, content: string, origin: string, {bridged}) => {
-            if (username === this.user.username) {
+        this.onPost(async (post: Post) => {
+            if (post.user.name === this.user.username) {
                 return;
             }
             const ctx: Context = {
                 _bot: this,
-                user: username,
-                bridged: bridged !== null,
-                args: content.split(" ", 5000),
+                user: post.user.name,
+                bridged: post.bridged,
+                args: post.content.split(" ", 5000),
                 origin: origin,
                 reply: async function (content: string): Promise<Post | null> {
                     return await this._bot.post(`@${this.user} ${content}`, this.origin)
@@ -68,7 +68,7 @@ export default class Bot extends Client {
             ctx.args.splice(0, 2)
 
 
-            if (!content.startsWith(`${this.prefix} ${command}`) && !content.startsWith(`${this.prefix} ${command}`))
+            if (!post.content.startsWith(`${this.prefix} ${command}`) && !post.content.startsWith(`${this.prefix} ${command}`))
                 return;
 
             try {

@@ -126,12 +126,15 @@ export class User {
     private _client: Client;
 
     constructor(data: RawUser, _client: Client) {
+
         this.name = data._id;
         this.id = data.uuid;
         
+        
+
         let pfp;
-        if (data.pfp_data) {
-            pfp = `https:/uploads.meower.org/icon/${data.pfp_data}`;
+        if (data.avatar !== "") {
+            pfp = `https:/uploads.meower.org/icons/${data.avatar}`;
         } else {
             pfp = `https://raw.githubusercontent.com/3r1s-s/meo/main/images/avatars-webp/icon_${data.pfp_data}.webp`;
         }
@@ -165,7 +168,10 @@ export class Post {
     pinned: boolean;
     
     private _client: Client;
+    private __raw: RawPost;
     constructor(data: RawPost, _client: Client) {
+        data = _client.handleBridgedPost(data);
+
         this.id = data._id;
         this.content = data.p;
         this.created = data.t.e;
@@ -173,17 +179,17 @@ export class Post {
         this.pinned = data.pinned;
 
         this._client = _client;
+        this.__raw = data;
+    }
 
-        (async () => {
-            this._client = _client;
-            const user = await this._client.data.getUser(data.u);
+    async finish() {
+            const user = await this._client.data.getUser(this.__raw.u);
             if (!user) throw new Error("User not found");
-            const chat = await this._client.data.getChat(data.post_origin);
+            const chat = await this._client.data.getChat(this.__raw.post_origin);
             if (!chat) throw new Error("Chat not found");
 
             this.user = user; 
             this.chat = chat;
-        })().catch((r) => {throw new Error(r)});
     }
 
     async delete() {

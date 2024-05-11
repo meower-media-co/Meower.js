@@ -4,7 +4,7 @@ import WebSocket from './WSWrapper';
 import * as log from 'loglevel';
 import { Post } from "./api/posts";
 import { Chat } from "./api/chats";
-import { WrapperManager } from "./typeWrappers";
+import { WrapperManager, Post as PostWrapper } from "./typeWrappers";
 
 
 if (typeof window === "undefined" || window === null) {
@@ -126,19 +126,17 @@ export default class Client extends EventEmitter {
                 this.emit("packet", data);
             });
 
-            this.on('command-direct', (command: Packet) => {
+            this.on('command-direct', async (command: Packet) => {
                 command = JSON.parse(JSON.stringify(command))
                 if (!Object.prototype.hasOwnProperty.call(command.val, "type")) {
                     return;
                 }
 
                 const post: Post = this.handleBridgedPost(command.val);
-
+                const wrapper = new PostWrapper(post, this)
+                await wrapper.finish();
                 this.emit("post",
-                    post.u,
-                    post.p,
-                    post.post_origin,
-                    { bridged: typeof command.val.bridged !== "undefined", raw: post }
+                    wrapper
                 );
             })
 
@@ -167,7 +165,6 @@ export default class Client extends EventEmitter {
     * Connects to the (specified) server, then logs in
     */
     login(username: string | null, password: string | null) {
-        this.connect();
         this.ws.on("connect", async () => {
 
             if (!username || !password) {
@@ -210,6 +207,8 @@ export default class Client extends EventEmitter {
             });
 
         })
+        this.connect();
+
     }
 
     handleBridgedPost(post: Post): Post {
@@ -241,16 +240,16 @@ export default class Client extends EventEmitter {
         if (resp.status !== 200)
             return null;
 
-        return resp.body as Post;
+        return new PostWrapper(resp.body as Post, this);
     }
 
     /**
     * Executes the callback when a new post is sent
 
     */
-    onPost(callback: (username: string, content: string, origin: string, { bridged, raw }: { bridged: boolean, raw: Post }) => void | Promise<void>) {
-        this.on("post", async (username: string, content: string, origin: string, extra: { bridged: boolean, raw: Post }) => {
-            await callback(username, content, origin, extra);
+    onPost(callback: (post: PostWrapper) => void | Promise<void>) {
+        this.on("post", async (post: PostWrapper) => {
+            await callback(post);
         });
     }
 
