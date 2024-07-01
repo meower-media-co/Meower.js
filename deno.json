@@ -1,0 +1,18 @@
+{
+	"name": "@meower-media/meower",
+	"version": "2.0.0-alpha13",
+	"exports": "./src/index.ts",
+	"include": [
+		"src",
+		"LICENSE",
+		"README.md"
+	],
+	"fmt": {
+		"lineWidth": 80,
+		"proseWrap": "always",
+		"semiColons": true,
+		"useTabs": true,
+		"singleQuote": true
+	},
+	"lock": false
+}
