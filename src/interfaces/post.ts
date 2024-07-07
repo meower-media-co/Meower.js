@@ -55,7 +55,7 @@ export interface post_report_options {
 export function is_api_post(obj: unknown): obj is api_post {
 	if (obj === null || typeof obj !== 'object') return false;
 	if (!('pinned' in obj) || typeof obj.pinned !== 'boolean') return false;
-	if (!('bridged' in obj) || typeof obj.bridged !== 'object') return false;
+	if (('bridged' in obj) && typeof obj.bridged !== 'object') return false;
 	if (!('_id' in obj) || typeof obj._id !== 'string') return false;
 	if (!('isDeleted' in obj) || typeof obj.isDeleted !== 'boolean') {
 		return false;
