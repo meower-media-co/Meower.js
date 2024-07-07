@@ -1,7 +1,6 @@
 import * as mf from 'https://deno.land/x/mock_fetch@0.3.0/mod.ts';
 import * as mjs from '../src/index.ts';
-import { assertEquals } from 'https://deno.land/std@0.224.0/assert/mod.ts';
-import { assertExists } from 'https://deno.land/std@0.224.0/assert/assert_exists.ts';
+import { assertEquals, assertExists } from 'jsr:@std/assert';
 
 const config: mjs.api_construction_opts = {
 	account: {
