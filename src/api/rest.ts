@@ -36,7 +36,6 @@ export class rest_api {
 	/** the api token */
 	api_token: string;
 	private chat_cache = new Map<string, api_chat>();
-	private chat_cache_page = 0;
 	private post_cache = new Map<string, api_post>();
 	private user_cache = new Map<string, api_user>();
 
@@ -83,19 +82,9 @@ export class rest_api {
 		});
 	}
 
-	/** get a list of chats by page */
-	async get_chat_page(page: number): Promise<Chat[]> {
-		if (this.chat_cache_page >= page) {
-			return [...this.chat_cache.values()].map((i) =>
-				new Chat({
-					api_token: this.api_token,
-					api_url: this.api_url,
-					data: i,
-				})
-			);
-		}
-
-		const resp = await fetch(`${this.api_url}/chats?page=${page}`, {
+	/** get a list of chats */
+	async get_chats(): Promise<Chat[]> {
+		const resp = await fetch(`${this.api_url}/chats`, {
 			headers: {
 				token: this.api_token,
 			},
