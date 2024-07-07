@@ -1,30 +1,53 @@
-// TODO: make this work
+import { copy, walk } from 'jsr:@std/fs@1.0.0-rc.3';
+
+/** cleanup */
+
+try {
+	await Deno.remove('dist', { recursive: true });
+} finally {
+	await Deno.mkdir('dist');
+}
 
 /** install dependencies */
 
-new Deno.Command('npm', {
-	args: ['i', '-g', 'typescript'],
-	stdin: 'inherit',
-	stdout: 'inherit',
-	stderr: 'inherit',
-}).outputSync();
+await (new Deno.Command('npm', {
+	args: ['i', '-g', 'esbuild'],
+})).output();
 
-/** generate code */
+/** copy files */
 
-try {
-	Deno.removeSync('dist', { recursive: true });
-} catch {
-	console.log(`dist doesn't exist`);
+await copy('src', 'dist/src');
+await copy('README.md', 'dist/README.md');
+await copy('LICENSE', 'dist/LICENSE');
+
+/** build javascript */
+
+await (new Deno.Command('npx', {
+	args: [
+		'esbuild',
+		'./src/*',
+		'./src/**/*',
+		'--outdir=dist/dist',
+		'--target=esnext',
+		'--platform=node',
+	],
+})).output();
+
+async function transformFile(path: string) {
+	let content = await Deno.readTextFile(path);
+	content = content.replaceAll('.ts', '.js');
+	content = content.replace('jsr:@denosaurs/event@2.0.2', 'node:events');
+	await Deno.writeTextFile(path, content);
 }
 
-Deno.mkdirSync('dist');
-
-new Deno.Command('npx', {
-	args: ['tsc', '-p', 'tsconfig.json'],
-	stdin: 'inherit',
-	stdout: 'inherit',
-	stderr: 'inherit',
-}).outputSync();
+for await (const { isDirectory, isFile, path } of walk('dist/dist')) {
+	if (isFile) await transformFile(path);
+	if (isDirectory) {
+		for await (const { isFile, path: newpath } of walk(path)) {
+			if (isFile) await transformFile(newpath);
+		}
+	}
+}
 
 /** copy metadata */
 
@@ -35,8 +58,8 @@ const pkg = {
 	'version': version,
 	'description': 'A Meower API Client written in Typescript',
 	'type': 'module',
-	'main': 'index.js',
-	'types': 'index.d.ts',
+	'main': 'dist/index.js',
+	'types': 'src/index.ts',
 	'repository': {
 		'type': 'git',
 		'url': 'https://github.com/meower-media-co/meower.js',
@@ -48,6 +71,3 @@ const pkg = {
 };
 
 Deno.writeTextFileSync('dist/package.json', JSON.stringify(pkg, null, 2));
-
-Deno.copyFileSync('README.md', 'dist/README.md');
-Deno.copyFileSync('LICENSE', 'dist/LICENSE');

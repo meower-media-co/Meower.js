@@ -47,6 +47,34 @@ export class rest_api {
 		});
 		this.api_url = opts.api_url;
 		this.api_token = opts.token;
+
+		this.chat_cache.set('home', {
+			_id: 'home',
+			allow_pinning: false,
+			created: 0,
+			deleted: false,
+			icon: '',
+			icon_color: '',
+			last_active: 0,
+			members: [],
+			nickname: 'home',
+			owner: '',
+			type: 0,
+		});
+
+		this.chat_cache.set('livechat', {
+			_id: 'livechat',
+			allow_pinning: false,
+			created: 0,
+			deleted: false,
+			icon: '',
+			icon_color: '',
+			last_active: 0,
+			members: [],
+			nickname: 'livechat',
+			owner: '',
+			type: 0,
+		});
 	}
 
 	/** get a chat by id */
@@ -95,6 +123,11 @@ export class rest_api {
 		if (data.error) {
 			throw new Error('failed to fetch chats', { cause: data });
 		}
+
+		data.autoget.push(
+			this.chat_cache.get('home'),
+			this.chat_cache.get('livechat'),
+		);
 
 		return data.autoget.map((i: api_chat) =>
 			new Chat({
@@ -145,7 +178,7 @@ export class rest_api {
 			});
 		}
 
-		const resp = await fetch(`${this.api_url}/posts/${id}`, {
+		const resp = await fetch(`${this.api_url}/posts?id=${id}`, {
 			headers: {
 				token: this.api_token,
 			},

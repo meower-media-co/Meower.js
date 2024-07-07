@@ -65,7 +65,7 @@ export class socket extends EventEmitter<{
 		});
 
 		setInterval(() => {
-			if (this.socket.readyState == 1) {
+			if (this.socket.readyState === 1) {
 				this.send({
 					'cmd': 'ping',
 					'val': '',
@@ -78,8 +78,11 @@ export class socket extends EventEmitter<{
 		this.socket.onmessage = (event) => {
 			const packet = JSON.parse(event.data);
 
+			if (!packet) return;
+
 			this.emit('packet', packet);
 			this.emit(`cmd-${packet.cmd}`, packet);
+
 			if (packet.listener) {
 				this.emit(`listener-${packet.listener}`, packet);
 			}
@@ -90,8 +93,9 @@ export class socket extends EventEmitter<{
 		this.on('cmd-direct', (packet) => {
 			if (
 				!packet.val || typeof packet.val !== 'object' ||
-				!('cmd' in packet.val)
+				Array.isArray(packet.val)
 			) return;
+			if (packet.cmd) return;
 
 			const post = new Post({
 				api_token: this.opts.api_token,
@@ -104,12 +108,12 @@ export class socket extends EventEmitter<{
 	}
 
 	static async connect(opts: socket_connect_opts): Promise<socket> {
-		const socket =
+		const ws =
 			new (globalThis.WebSocket ? WebSocket : ((await import('ws')).default))(
 				opts.socket_url,
 			);
-		await new Promise((resolve) => socket.onopen = resolve);
-		return new socket(socket, opts);
+		await new Promise((resolve) => ws.onopen = resolve);
+		return new socket(ws, opts);
 	}
 
 	/** send a packet over the socket */

@@ -255,8 +255,8 @@ export class Chat {
 
 	/** send a message */
 	async send_message(content: string): Promise<Post> {
-		let url = `${this.api_url}/chats/${this.id}/messages`;
-		if (this.id === 'home') url = `${this.api_url}/home/messages`;
+		let url = `${this.api_url}/posts/${this.id}`;
+		if (this.id === 'home') url = `${this.api_url}/home`;
 
 		const resp = await fetch(url, {
 			method: 'POST',
@@ -273,16 +273,22 @@ export class Chat {
 
 		if (!resp.ok || data.error) {
 			throw new Error('failed to send message', {
-				cause: await resp.json(),
+				cause: data,
 			});
 		}
 
-		return new Post({ data, api_url: this.api_url, api_token: this.api_token });
+		return new Post({
+			data,
+			api_url: this.api_url,
+			api_token: this.api_token,
+		});
 	}
 
 	/** search for posts in the chat */
 	async search(query: string, page: number = 1): Promise<Post[]> {
-		if (this.id !== 'home') throw new Error('search is only available in home');
+		if (this.id !== 'home') {
+			throw new Error('search is only available in home');
+		}
 
 		const resp = await fetch(
 			`${this.api_url}/search/home/?autoget&q=${query}&page=${page}`,
@@ -301,14 +307,18 @@ export class Chat {
 		}
 
 		return data.autoget.map((i: api_post) =>
-			new Post({ data: i, api_url: this.api_url, api_token: this.api_token })
+			new Post({
+				data: i,
+				api_url: this.api_url,
+				api_token: this.api_token,
+			})
 		);
 	}
 
 	/** get messages in the chat */
 	async get_messages(page: number = 1): Promise<Post[]> {
-		let url = `${this.api_url}/chats/${this.id}/messages`;
-		if (this.id === 'home') url = `${this.api_url}/home/messages`;
+		let url = `${this.api_url}/posts/${this.id}`;
+		if (this.id === 'home') url = `${this.api_url}/home`;
 
 		const resp = await fetch(`${url}?autoget=1&page=${page}`, {
 			method: 'GET',
@@ -324,7 +334,11 @@ export class Chat {
 		}
 
 		return data.autoget.map((i: api_post) =>
-			new Post({ data: i, api_url: this.api_url, api_token: this.api_token })
+			new Post({
+				data: i,
+				api_url: this.api_url,
+				api_token: this.api_token,
+			})
 		);
 	}
 }

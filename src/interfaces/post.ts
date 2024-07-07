@@ -146,15 +146,12 @@ export class Post {
 
 	/** pin the post */
 	async pin() {
-		const resp = await fetch(`${this.api_url}/posts/?id=${this.id}`, {
-			method: 'PATCH',
+		const resp = await fetch(`${this.api_url}/posts/${this.id}/pin`, {
+			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
 				'token': this.api_token,
 			},
-			body: JSON.stringify({
-				pinned: true,
-			}),
 		});
 
 		const data = await resp.json();
@@ -171,15 +168,12 @@ export class Post {
 
 	/** unpin the post */
 	async unpin() {
-		const resp = await fetch(`${this.api_url}/posts/?id=${this.id}`, {
-			method: 'PATCH',
+		const resp = await fetch(`${this.api_url}/posts/${this.id}/pin`, {
+			method: 'DELETE',
 			headers: {
 				'Content-Type': 'application/json',
 				'token': this.api_token,
 			},
-			body: JSON.stringify({
-				pinned: false,
-			}),
 		});
 
 		const data = await resp.json();

@@ -160,16 +160,16 @@ export class User {
 	}
 
 	/** change the user's relationship with you */
-	async change_relationship(type: user_relationship_status) {
+	async change_relationship(state: user_relationship_status) {
 		const resp = await fetch(
 			`${this.api_url}/users/${this.id}/relationship`,
 			{
-				method: 'POST',
+				method: 'PATCH',
 				headers: {
 					'Content-Type': 'application/json',
 					'token': this.api_token,
 				},
-				body: JSON.stringify({ type }),
+				body: JSON.stringify({ state }),
 			},
 		);
 
