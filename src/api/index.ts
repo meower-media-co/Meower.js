@@ -10,7 +10,6 @@ export interface Config {
 
 type UnwrapPromise<T> = T extends Promise<infer U> ? U : T;
 
-// eslint-disable-next-line @typescript-eslint/ban-types
 type RetType<T extends (...args: any[]) => any> = UnwrapPromise<ReturnType<T>>
 
 
@@ -106,9 +105,8 @@ export default class mAPI {
     */
     signUp(username: string, password: string) {
 
-        // eslint-disable-next-line @typescript-eslint/ban-types
-        let re: Function; let rj: Function;
-        const promise = new Promise((resolve, reject) => {re = resolve; rj = reject})
+        let re: () => void; let rj: (reason: any) => void;
+        const promise = new Promise<void>((resolve, reject) => {re = resolve; rj = reject})
 
         this.client.connect();
         this.client.ws.on("open", () => {

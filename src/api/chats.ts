@@ -55,8 +55,7 @@ export default class MChats {
     }> {
         if (this.cache.has(id)) {
             return {
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-ignore
+                // @ts-expect-error: TODO
                 body: this.cache.get(id),
                 status: 200
             }

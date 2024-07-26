@@ -1,8 +1,7 @@
 import Client from "../..";
 import { Post } from "../../typeWrappers";
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-export interface Context extends Object {
+export interface Context {
     _bot: Client,
 
     bridged: boolean,

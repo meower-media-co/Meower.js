@@ -17,8 +17,7 @@ if (typeof window === "undefined" || window === null) {
     }) : undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-export interface Packet extends Object {
+export interface Packet {
     cmd: string;
     val: any | object;
     listener?: string;
@@ -26,8 +25,7 @@ export interface Packet extends Object {
 
 
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-interface User extends Object {
+interface User {
     account: {
         _id: string,
         active_dms: Array<Chat>

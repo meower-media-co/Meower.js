@@ -7,8 +7,7 @@ class FakeClient {
 
 const API = new mAPI({
     apiUrl: "https://api.meower.org",
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore: client is required
+    // @ts-expect-error: client is required
     client: new FakeClient()
 });
 

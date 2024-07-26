@@ -66,8 +66,7 @@ export default class MPosts {
             return {
                 status: 200,
                 
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                //@ts-ignore
+                // @ts-expect-error: TODO
                 body: this.cache.get(chatId)!.get(postId)!
             }
         }
